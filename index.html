@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashSkew</title>
+<style>
+  body {
+  font-family: 'Calibri Light', Calibri, Arial, sans-serif;
+  background-color: #f0f4f8; /* Light background for contrast */
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.6); /* Glass effect */
+  backdrop-filter: blur(10px); /* Blur effect behind the glass */
+  border-radius: 15px; /* Rounded corners */
+  overflow: hidden; /* Ensures the rounded corners include children */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+}
+
+th, td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+input[type="text"], input[type="number"] {
+  width: 150px;
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: right;
+}
+
+/* Style for buttons */
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Glass effect for buttons */
+button {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Hover effect for buttons */
+button:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Colors for specific buttons */
+#clearButton {
+  color: #007bff;
+}
+
+#downloadButton {
+  color: #28a745;
+}
+
+#visualizationButton {
+  color: #6c757d;
+}
+
+#myChart {
+  background-color: #ffffff; /* Light background for contrast */
+  border-radius: 15px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+  width: 800px;
+  height: 400px;
+  margin: auto;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  font-size: 0.8em;
+}
+
+/* Optional: Add some padding and margin tweaks for better spacing */
+
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>CashSkew Model</h1>
+  </div>
+
+  <table>
+    <tr>
+      <th></th>
+      <th>Net Cash Flow $</th>
+      <th>Impact on Earning before Appropriations $</th>
+    </tr>
+    <tr>
+      <td>Current Position</td>
+      <td><input type="text" name="current_net_cash_flow"></td>
+      <td><input type="text" name="current_ebit"></td>
+    </tr>
+  </table>
+
+  <table>
+    <tr>
+      <th></th>
+      <th>Change you would like to make</th>
+      <th>Annual Impact on Cash Flow $</th>
+      <th>Impact on Earning before Appropriations $</th>
+    </tr>
+    <tr>
+      <td>Price Increase %</td>
+      <td><input type="number" step="0.01" min="0" name="price_increase_change" placeholder="%"></td>
+      <td><input type="text" name="price_increase_annual_impact"></td>
+      <td><input type="text" name="price_increase_ebit_impact"></td>
+    </tr>
+    <tr>
+      <td>Volume Increase %</td>
+      <td><input type="number" step="0.01" min="0" name="volume_increase_change" placeholder="%"></td>
+      <td><input type="text" name="volume_increase_annual_impact"></td>
+      <td><input type="text" name="volume_increase_ebit_impact"></td>
+    </tr>
+    <tr>
+      <td>COGS Reduction %</td>
+      <td><input type="number" step="0.01" min="0" name="cogs_reduction_change" placeholder="%"></td>
+      <td><input type="text" name="cogs_reduction_annual_impact"></td>
+      <td><input type="text" name="cogs_reduction_ebit_impact"></td>
+    </tr>
+    <tr>
+      <td>Overheads Reduction %</td>
+      <td><input type="number" step="0.01" min="0" name="overheads_reduction_change" placeholder="%"></td>
+      <td><input type="text" name="overheads_reduction_annual_impact"></td>
+      <td><input type="text" name="overheads_reduction_ebit_impact"></td>
+    </tr>
+    <tr>
+      <td>Reduction in Debtors Days</td>
+      <td><input type="number" min="0" name="debtors_days_reduction_change" placeholder="Days"></td>
+      <td><input type="text" name="debtors_days_reduction_annual_impact"></td>
+     
+    </tr>
+    <tr>
+      <td>Reduction in Stock Days</td>
+      <td><input type="number" min="0" name="stock_days_reduction_change" placeholder="Days"></td>
+      <td><input type="text" name="stock_days_reduction_annual_impact"></td>
+      
+    </tr>
+    <tr>
+      <td>Increase in Creditors Days</td>
+      <td><input type="number" min="0" name="creditors_days_increase_change" placeholder="Days"></td>
+      <td><input type="text" name="creditors_days_increase_annual_impact"></td>
+      
+    </tr>
+    
+      <!-- Repeat for each input line -->
+  </table>
+
+  <table>
+    <tr>
+      <th colspan="2">Total Impact</th>
+      <td><input type="text" name="power_of_one_impact_net_cash_flow" placeholder="$ Annual Impact on Cash Flow"></td>
+      <td><input type="text" name="power_of_one_impact_ebit" placeholder="$ Impact on Earning before Appropriations"></td>
+    </tr>
+  </table>
+
+  <table>
+    <tr>
+      <th colspan="2"></th>
+      <td>Net Cash Flow $</td>
+      <td>Impact on Earning before Appropriations $</td>
+    </tr>
+    <tr>
+      <td colspan="2">Adjusted Position</td>
+      <td><input type="text" name="adjusted_net_cash_flow"></td>
+      <td><input type="text" name="adjusted_ebit"></td>
+    </tr>
+  </table>
+  <div style="margin-top: 20px; display: flex; justify-content: flex-start; gap: 20px;">
+    <button id="clearButton">Clear</button>
+    <button id="downloadButton">Download as Excel</button>
+    <button id="visualizationButton">Visualize Data</button>
+  </div>
+</div>
+<canvas id="myChart" width="800" height="400" style="display:none;"></canvas>
+
+<footer style="text-align: center; padding: 20px; margin-top: 40px; font-size: 0.8em;">
+  &copy; <span id="currentYear"></span> Powered by <a href="https://findat.netlify.app/" target="_blank">Findat Consultants</a>
+</footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const inputs = document.querySelectorAll('input[type=number], input[type=text][name^="current_"], input[type=text][name$="_impact"]');
+    const currentNetCashFlowInput = document.querySelector('input[name="current_net_cash_flow"]');
+    const currentEbitInput = document.querySelector('input[name="current_ebit"]');
+
+    inputs.forEach(input => {
+        input.addEventListener('input', calculateImpact);
+    });
+
+    function calculateImpact() {
+        // Retrieve current values
+        const currentNetCashFlow = parseFloat(currentNetCashFlowInput.value) || 0;
+        const currentEbit = parseFloat(currentEbitInput.value) || 0;
+
+        // Retrieve and parse change inputs
+        const priceIncreasePercent = parseFloat(document.querySelector('input[name="price_increase_change"]').value) || 0;
+        const volumeIncreasePercent = parseFloat(document.querySelector('input[name="volume_increase_change"]').value) || 0;
+        const cogsReductionPercent = parseFloat(document.querySelector('input[name="cogs_reduction_change"]').value) || 0;
+        const overheadsReductionPercent = parseFloat(document.querySelector('input[name="overheads_reduction_change"]').value) || 0;
+        const debtorsDaysReduction = parseFloat(document.querySelector('input[name="debtors_days_reduction_change"]').value) || 0;
+        const stockDaysReduction = parseFloat(document.querySelector('input[name="stock_days_reduction_change"]').value) || 0;
+        const creditorsDaysIncrease = parseFloat(document.querySelector('input[name="creditors_days_increase_change"]').value) || 0;
+
+        // Calculate percentage impacts on cash flow and EBIT
+        const priceIncreaseImpactCashFlow = currentNetCashFlow * (priceIncreasePercent / 100);
+        const volumeIncreaseImpactCashFlow = currentNetCashFlow * (volumeIncreasePercent / 100);
+        const cogsReductionImpactCashFlow = currentNetCashFlow * (cogsReductionPercent / 100);
+        const overheadsReductionImpactCashFlow = currentNetCashFlow * (overheadsReductionPercent / 100);
+
+        const priceIncreaseImpactEbit = currentEbit * (priceIncreasePercent / 100);
+        const volumeIncreaseImpactEbit = currentEbit * (volumeIncreasePercent / 100);
+        const cogsReductionImpactEbit = currentEbit * (cogsReductionPercent / 100);
+        const overheadsReductionImpactEbit = currentEbit * (overheadsReductionPercent / 100);
+
+        // Directly use days for cash flow impact
+        const debtorsDaysImpactCashFlow = (currentNetCashFlow / 365) * debtorsDaysReduction;
+        const stockDaysImpactCashFlow = (currentNetCashFlow / 365) * stockDaysReduction;
+        const creditorsDaysImpactCashFlow = (currentNetCashFlow / 365) * creditorsDaysIncrease;
+
+        // Update fields for percentage impact on cash flow
+        document.querySelector('input[name="price_increase_annual_impact"]').value = priceIncreaseImpactCashFlow.toFixed(2);
+        document.querySelector('input[name="volume_increase_annual_impact"]').value = volumeIncreaseImpactCashFlow.toFixed(2);
+        document.querySelector('input[name="cogs_reduction_annual_impact"]').value = cogsReductionImpactCashFlow.toFixed(2);
+        document.querySelector('input[name="overheads_reduction_annual_impact"]').value = overheadsReductionImpactCashFlow.toFixed(2);
+
+        // Update fields for days impact on cash flow
+        document.querySelector('input[name="debtors_days_reduction_annual_impact"]').value = debtorsDaysImpactCashFlow.toFixed(2);
+        document.querySelector('input[name="stock_days_reduction_annual_impact"]').value = stockDaysImpactCashFlow.toFixed(2);
+        document.querySelector('input[name="creditors_days_increase_annual_impact"]').value = creditorsDaysImpactCashFlow.toFixed(2);
+
+        // Update fields for percentage impact on EBIT
+        document.querySelector('input[name="price_increase_ebit_impact"]').value = priceIncreaseImpactEbit.toFixed(2);
+        document.querySelector('input[name="volume_increase_ebit_impact"]').value = volumeIncreaseImpactEbit.toFixed(2);
+        document.querySelector('input[name="cogs_reduction_ebit_impact"]').value = cogsReductionImpactEbit.toFixed(2);
+        document.querySelector('input[name="overheads_reduction_ebit_impact"]').value = overheadsReductionImpactEbit.toFixed(2);
+
+        // Calculate and update "Your Impact" and "Your Adjusted Position"
+        const totalAnnualImpactCashFlow = priceIncreaseImpactCashFlow + volumeIncreaseImpactCashFlow + cogsReductionImpactCashFlow + overheadsReductionImpactCashFlow + debtorsDaysImpactCashFlow + stockDaysImpactCashFlow - creditorsDaysImpactCashFlow;
+        const totalEbitImpact = priceIncreaseImpactEbit + volumeIncreaseImpactEbit + cogsReductionImpactEbit + overheadsReductionImpactEbit;
+
+        // Update "Your Impact" fields
+        document.querySelector('input[name="power_of_one_impact_net_cash_flow"]').value = totalAnnualImpactCashFlow.toFixed(2);
+        document.querySelector('input[name="power_of_one_impact_ebit"]').value = totalEbitImpact.toFixed(2);
+
+        // Update "Your Adjusted Position" fields
+        document.querySelector('input[name="adjusted_net_cash_flow"]').value = (currentNetCashFlow + totalAnnualImpactCashFlow).toFixed(2);
+        document.querySelector('input[name="adjusted_ebit"]').value = (currentEbit + totalEbitImpact).toFixed(2);
+    }
+});
+</script>
+
+
+<script>
+  // Declare a variable outside to hold the chart instance
+  var myChartInstance = null;
+  
+  document.getElementById('clearButton').addEventListener('click', function () {
+      document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+          input.value = ''; // Clear each field
+      });
+  
+      // Check if the chart instance exists
+      if (myChartInstance) {
+          myChartInstance.destroy(); // Destroy the existing chart
+          myChartInstance = null; // Reset the chart instance variable
+      }
+  
+      // Optionally, hide the chart canvas if preferred
+      var canvas = document.getElementById('myChart');
+      canvas.style.display = 'none';
+  });
+  </script>
+
+  <script>
+document.getElementById('downloadButton').addEventListener('click', function () {
+    // Define the filename
+    const filename = 'CashSkew_Model_Data.csv';
+
+    // Initialize CSV content with UTF-8 BOM for Excel compatibility
+    let csvContent = "\uFEFF";
+
+    // Function to extract text or input value from table cells
+    const extractCellValue = (cell) => {
+        const input = cell.querySelector('input');
+        return input ? input.value : cell.textContent || '';
+    };
+
+    // Iterate over all tables and their rows
+    document.querySelectorAll('table').forEach((table, tableIndex) => {
+        // Include a separator between tables if there's more than one
+        if (tableIndex > 0) csvContent += "\r\n";
+
+        // Headers
+        table.querySelectorAll('th').forEach((header, headerIndex) => {
+            csvContent += `"${extractCellValue(header)}"` + (headerIndex < table.querySelectorAll('th').length - 1 ? ',' : '\r\n');
+        });
+
+        // Data rows
+        table.querySelectorAll('tr').forEach((row) => {
+            let rowData = [];
+            row.querySelectorAll('td').forEach((cell) => {
+                rowData.push(`"${extractCellValue(cell)}"`);
+            });
+            if (rowData.length > 0) {
+                csvContent += rowData.join(",") + "\r\n";
+            }
+        });
+    });
+
+    // Create a link and click it to start the download
+    const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", filename);
+    document.body.appendChild(link); // Required for FF
+
+    link.click(); // Start download
+    document.body.removeChild(link); // Clean up
+});
+  </script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.getElementById('visualizationButton').addEventListener('click', function () {
+      var canvas = document.getElementById('myChart');
+      canvas.style.display = 'block'; // Make sure the canvas is visible
+      
+      var ctx = canvas.getContext('2d');
+      
+      // Check and destroy existing chart instance before creating a new one
+      if (myChartInstance) {
+          myChartInstance.destroy();
+      }
+  
+      // Proceed to create a new chart instance
+      myChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: ['Current Net Cash Flow', 'Adjusted Net Cash Flow', 'Impact on Earning before Appropriations', 'Adjusted Impact on Earning before Appropriations'],
+              datasets: [{
+                  label: 'Financial Metrics',
+                  data: [], // Initialize with empty data; will be set based on inputs
+                  backgroundColor: [
+                      'rgba(255, 99, 132, 0.2)',
+                      'rgba(54, 162, 235, 0.2)',
+                      'rgba(255, 206, 86, 0.2)',
+                      'rgba(75, 192, 192, 0.2)'
+                  ],
+                  borderColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)'
+                  ],
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
+  
+      // Update the chart data based on inputs
+      updateChartData();
+  
+      // Function to update chart data
+      function updateChartData() {
+          var currentNetCashFlow = parseFloat(document.querySelector('input[name="current_net_cash_flow"]').value) || 0;
+          var adjustedNetCashFlow = parseFloat(document.querySelector('input[name="adjusted_net_cash_flow"]').value) || 0;
+          var currentEbit = parseFloat(document.querySelector('input[name="current_ebit"]').value) || 0;
+          var adjustedEbit = parseFloat(document.querySelector('input[name="adjusted_ebit"]').value) || 0;
+  
+          myChartInstance.data.datasets.forEach((dataset) => {
+              dataset.data = [currentNetCashFlow, adjustedNetCashFlow, currentEbit, adjustedEbit];
+          });
+          myChartInstance.update();
+      }
+  
+      // Scroll the canvas into view
+      canvas.scrollIntoView({behavior: 'smooth', block: 'end'});
+  });
+  </script>
+
+
+</body>
+</html>
